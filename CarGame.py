@@ -74,6 +74,24 @@ class Player(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
+class Road(pygame.sprite.Sprite):
+    def __init__(self, count):
+        super().__init__() 
+        self.rect = Rect(SCREEN_WIDTH/2 - 5,-50,10,50)
+        self.count = count
+
+    def move(self):
+        if self.rect.top <= 0 and self.count != 0:
+            self.count -= 1
+            return None
+        self.rect.move_ip(0,10)
+        if self.rect.bottom > 600:
+            self.count = 20
+            self.rect.top = -50
+    
+    def draw(self, surface):
+        pygame.draw.rect(surface, WHITE, self.rect)
+
 
 P1 = Player()
 Enemies = []
@@ -81,6 +99,12 @@ Enemies.append(Enemy())
 Enemies.append(Enemy())
 Enemies.append(Enemy())
 Enemies.append(Enemy())
+
+Roads = []
+Roads.append(Road(0))
+Roads.append(Road(20))
+Roads.append(Road(40))
+Roads.append(Road(60))
 
 while True:
     for event in pygame.event.get():
@@ -90,11 +114,16 @@ while True:
     P1.update()
     for i in range(len(Enemies)):
         Enemies[i].move()
+    for i in range(len(Roads)):
+        Roads[i].move()
 
     DISPLAYSURF.fill(GREY)
     P1.draw(DISPLAYSURF)
     for i in range(len(Enemies)):
         Enemies[i].draw(DISPLAYSURF)
+    for i in range(len(Roads)):
+        Roads[i].draw(DISPLAYSURF)
+        
 
     pygame.display.update()
     FramePerSec.tick(FPS)
