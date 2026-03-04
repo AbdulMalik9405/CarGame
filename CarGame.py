@@ -92,6 +92,19 @@ class Road(pygame.sprite.Sprite):
     def draw(self, surface):
         pygame.draw.rect(surface, WHITE, self.rect)
 
+def highscoreTrack():
+    global win, lose
+
+    file = open("highscore.txt", "r")
+    for line in file:
+        timelist = line.strip().split(",")
+        if timelist[1] == "win":
+            win.append(timelist[0])
+        else:
+            lose.append(timelist[0])
+    win.sort()
+    lose.sort(reverse=True)
+    file.close()
 
 P1 = Player()
 Enemies = []
@@ -106,6 +119,9 @@ Roads.append(Road(20))
 Roads.append(Road(40))
 Roads.append(Road(60))
 
+time = 0
+win = []
+lose = []
 while True:
     for event in pygame.event.get():
         if event.type == QUIT:
@@ -118,12 +134,41 @@ while True:
         Roads[i].move()
 
     DISPLAYSURF.fill(GREY)
+    for i in range(len(Roads)):
+        Roads[i].draw(DISPLAYSURF)
     P1.draw(DISPLAYSURF)
     for i in range(len(Enemies)):
         Enemies[i].draw(DISPLAYSURF)
-    for i in range(len(Roads)):
-        Roads[i].draw(DISPLAYSURF)
-        
 
+    for i in range(i):
+        if P1.rect.colliderect(Enemies[i]):
+            print("Collision Detected. Game Over")
+            print("Time Score:", time)
+            file = open("highscore.txt", "a")
+            file.write(str(time) + ",lose" + "\n")
+            file.close()
+            highscoreTrack()
+            print("TOP 3 HIGHSCORES")
+            for i in range(3):
+                if len(lose) > i:
+                    print(str(i+1) + ":", lose[i])
+                else:
+                    print("Not enough scores")
+            pygame.quit()
+            sys.exit()
+        else:
+            continue
+
+    if P1.rect.top <= 0:
+        print("Made it to the end of the road. Game Win")
+        print("Time Score:", time)
+        file = open("highscore.txt", "a")
+        file.write(str(time) + ",win" + "\n")
+        file.close()
+        highscoreTrack()
+        pygame.quit()
+        sys.exit()
+
+    time += 1/FPS
     pygame.display.update()
     FramePerSec.tick(FPS)
