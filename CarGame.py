@@ -74,6 +74,41 @@ class Player(pygame.sprite.Sprite):
     def draw(self, surface):
         surface.blit(self.image, self.rect)
 
+    def collision(self):
+        for enemy in Enemies:
+            if P1.rect.colliderect(enemy):
+                print("Collision Detected. Game Over")
+                print("Time Score:", time)
+                file = open("highscore.txt", "a")
+                file.write(str(time) + ",lose" + "\n")
+                file.close()
+                highscoreTrack()
+                print("TOP 3 HIGHSCORES")
+                for i in range(3):
+                    if len(lose) > i:
+                        print(f"{i+1}: {lose[i]:.2f} seconds")
+                    else:
+                        print("Not enough scores")
+                pygame.quit()
+                sys.exit()
+
+    def win(self):
+        if P1.rect.top <= 0:
+            print("Made it to the end of the road. Game Win")
+            print("Time Score:", time)
+            file = open("highscore.txt", "a")
+            file.write(str(time) + ",win" + "\n")
+            file.close()
+            highscoreTrack()
+            print("TOP 3 WIN HIGHSCORES")
+            for i in range(3):
+                if len(win) > i:
+                    print(f"{i+1}: {win[i]:.2f} seconds")
+                else:
+                    print("Not enough scores")
+            pygame.quit()
+            sys.exit()
+
 class Road(pygame.sprite.Sprite):
     def __init__(self, count):
         super().__init__() 
@@ -88,7 +123,7 @@ class Road(pygame.sprite.Sprite):
         if self.rect.bottom > 600:
             self.count = 20
             self.rect.top = -50
-    
+
     def draw(self, surface):
         pygame.draw.rect(surface, WHITE, self.rect)
 
@@ -99,9 +134,9 @@ def highscoreTrack():
     for line in file:
         timelist = line.strip().split(",")
         if timelist[1] == "win":
-            win.append(timelist[0])
+            win.append(float(timelist[0]))
         else:
-            lose.append(timelist[0])
+            lose.append(float(timelist[0]))
     win.sort()
     lose.sort(reverse=True)
     file.close()
@@ -140,34 +175,8 @@ while True:
     for i in range(len(Enemies)):
         Enemies[i].draw(DISPLAYSURF)
 
-    for i in range(i):
-        if P1.rect.colliderect(Enemies[i]):
-            print("Collision Detected. Game Over")
-            print("Time Score:", time)
-            file = open("highscore.txt", "a")
-            file.write(str(time) + ",lose" + "\n")
-            file.close()
-            highscoreTrack()
-            print("TOP 3 HIGHSCORES")
-            for i in range(3):
-                if len(lose) > i:
-                    print(str(i+1) + ":", lose[i])
-                else:
-                    print("Not enough scores")
-            pygame.quit()
-            sys.exit()
-        else:
-            continue
-
-    if P1.rect.top <= 0:
-        print("Made it to the end of the road. Game Win")
-        print("Time Score:", time)
-        file = open("highscore.txt", "a")
-        file.write(str(time) + ",win" + "\n")
-        file.close()
-        highscoreTrack()
-        pygame.quit()
-        sys.exit()
+    P1.collision()
+    P1.win()
 
     time += 1/FPS
     pygame.display.update()
